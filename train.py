@@ -1,33 +1,73 @@
+from numpy import dtype
+import torch
 from torch.utils.data import DataLoader, ConcatDataset
-from torch import rand, cat, ones, zeros, argmax
+import torch.nn as nn
 from torchvision.datasets import MNIST
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 
 from simple_discriminator import SimpleDiscriminator
 from simple_generator import SimpleGenerator
 
+from PIL import Image
 
+# Task Parameters
 img_shape = (1, 28, 28)
 z_shape = (10, 10, 10)
 
+# Hyperparameters
 batch_size = 16
+lr = .01
+b1 = .5
+b2 = .999
 
-gen = SimpleGenerator(input_shape=z_shape, output_shape=img_shape, batch_size=batch_size)
-disc = SimpleDiscriminator(img_shape=img_shape)
-
-train_dataset = MNIST('/Users/avibewtra/anaconda3/envs/data/MNIST', train=True, download=False, transform=transforms.PILToTensor())
-test_dataset = MNIST('/Users/avibewtra/anaconda3/envs/data/MNIST', train=False, download=False, transform=transforms.PILToTensor())
-
+# Dataset
+train_dataset = MNIST('../data/MNIST', train=True, download=False, transform=T.PILToTensor())
+test_dataset = MNIST('../data/MNIST', train=False, download=False, transform=T.PILToTensor())
 loader = DataLoader(ConcatDataset([train_dataset, test_dataset]), batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=False)
 
-for batch_id, (imgs, MNIST_label) in enumerate(loader):
-    # print(batch_id, imgs.shape, label)
-    z = rand((batch_size, *z_shape))
-    imgs_gen = gen(z)
+# Generator
+g = SimpleGenerator(input_shape=z_shape, output_shape=img_shape, batch_size=batch_size)
+g_optim = torch.optim.Adam(g.parameters(), lr=lr, betas=(b1, b2))
 
-    x = cat((imgs, imgs_gen), dim=0)
-    y = disc(x)
-    disc_label = cat((ones((batch_size,)), zeros((batch_size,))), dim=0)
-    print(disc_label.shape)
-    print(argmax(y, dim=1).shape)
-    break 
+# Disciminator
+d = SimpleDiscriminator(img_shape=img_shape)
+d_optim = torch.optim.Adam(d.parameters(), lr=lr, betas=(b1, b2))
+
+# Loss
+adversarial_loss = nn.BCEWithLogitsLoss()
+
+for batch_id, (x, MNIST_label) in enumerate(loader):
+    print("Batch: {} / {}".format(batch_id, len(loader)))
+    g_optim.zero_grad()
+    d_optim.zero_grad()
+
+    z = torch.rand((batch_size, *z_shape))
+    x_gen = g(z)
+
+    pred_real = d(x.to(dtype=torch.float32))
+    pred_gen = d(x_gen)
+
+    y_real = torch.ones((batch_size,))
+    y_fake = torch.zeros((batch_size,))
+
+    g_loss = adversarial_loss(pred_gen, y_real)
+    d_loss = (adversarial_loss(pred_gen, y_fake) + adversarial_loss(pred_real, y_real)) / 2
+
+    print("g_loss: ", g_loss.item())
+    print("d_loss: ", d_loss.item())
+
+    
+    g_loss.backward(retain_graph=True)
+    d_loss.backward(retain_graph=True)
+
+    g_optim.step()
+    d_optim.step()
+
+imgs = [x_gen[i].squeeze_() for i in range(batch_size)]
+import matplotlib.pyplot as plt
+plt.imshow(torch.stack([imgs[0] for i in range(3)], dim=2).detach())
+for i, img in enumerate(imgs):
+    T.ToPILImage()(img).save('samples/{}.png'.format(i))
+plt.show()
+
+
