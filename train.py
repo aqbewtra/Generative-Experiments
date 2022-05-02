@@ -7,6 +7,7 @@ import torchvision.transforms as T
 
 from simple_discriminator import SimpleDiscriminator
 from simple_generator import SimpleGenerator
+from losses import gan_loss
 
 from PIL import Image
 
@@ -15,8 +16,9 @@ img_shape = (1, 28, 28)
 z_shape = (10, 10, 10)
 
 # Hyperparameters
+epochs = 10
 batch_size = 16
-lr = .01
+lr = .003
 b1 = .5
 b2 = .999
 
@@ -36,32 +38,35 @@ d_optim = torch.optim.Adam(d.parameters(), lr=lr, betas=(b1, b2))
 # Loss
 adversarial_loss = nn.BCEWithLogitsLoss()
 
-for batch_id, (x, MNIST_label) in enumerate(loader):
-    print("Batch: {} / {}".format(batch_id, len(loader)))
-    g_optim.zero_grad()
-    d_optim.zero_grad()
+for epoch in range(epochs):
+    running_d_loss = 0
+    running_g_loss = 0
 
-    z = torch.rand((batch_size, *z_shape))
-    x_gen = g(z)
+    for batch_id, (x, MNIST_label) in enumerate(loader):
+        g_optim.zero_grad()
+        d_optim.zero_grad()
 
-    pred_real = d(x.to(dtype=torch.float32))
-    pred_gen = d(x_gen)
+        z = torch.rand((batch_size, *z_shape))
+        x_gen = g(z)
 
-    y_real = torch.ones((batch_size,))
-    y_fake = torch.zeros((batch_size,))
+        d_loss, g_loss = gan_loss(x.float(), x_gen, d)
 
-    g_loss = adversarial_loss(pred_gen, y_real)
-    d_loss = (adversarial_loss(pred_gen, y_fake) + adversarial_loss(pred_real, y_real)) / 2
+        if batch_id % 100 == 0:
+            print("EPOCH: {}/{} ".format(epoch+1, epochs), "Batch: {} / {}".format(batch_id, len(loader)))
+            print("g_loss: ", g_loss.item())
+            print("d_loss: ", d_loss.item())
+        
+        g_loss.backward(retain_graph=True)
+        d_loss.backward(retain_graph=True)
 
-    print("g_loss: ", g_loss.item())
-    print("d_loss: ", d_loss.item())
+        g_optim.step()
+        d_optim.step()
 
-    
-    g_loss.backward(retain_graph=True)
-    d_loss.backward(retain_graph=True)
+        running_g_loss += g_loss.item()
+        running_d_loss += d_loss.item()
 
-    g_optim.step()
-    d_optim.step()
+    print("Avg. g_loss: ", running_g_loss / len(loader))
+    print("Avg. d_loss: ", running_d_loss / len(loader))
 
 imgs = [x_gen[i].squeeze_() for i in range(batch_size)]
 import matplotlib.pyplot as plt
@@ -69,5 +74,3 @@ plt.imshow(torch.stack([imgs[0] for i in range(3)], dim=2).detach())
 for i, img in enumerate(imgs):
     T.ToPILImage()(img).save('samples/{}.png'.format(i))
 plt.show()
-
-
