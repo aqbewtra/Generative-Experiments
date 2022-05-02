@@ -2,10 +2,8 @@ import torch.nn as nn
 from torch import flatten
 
 class SimpleDiscriminator(nn.Module):
-    def __init__(self, img_shape=(1, 28, 28), num_classes=2):
+    def __init__(self, img_shape=(1, 28, 28)):
         super(SimpleDiscriminator, self).__init__()
-        if num_classes == 2: num_classes = 1
-
         self.conv1 = nn.Conv2d(in_channels=img_shape[0], out_channels=5, kernel_size=5, padding=2)
         self.conv2 = nn.Conv2d(in_channels=5, out_channels=10, kernel_size=5, padding=2)
         self.conv3 = nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5, padding=2)
@@ -14,7 +12,7 @@ class SimpleDiscriminator(nn.Module):
 
         self.lin1 = nn.Linear(in_features=features, out_features=int(features/2))
         self.lin2 = nn.Linear(in_features=int(features/2), out_features=int(features/4))
-        self.lin3 = nn.Linear(in_features=int(features/4), out_features=num_classes)
+        self.lin3 = nn.Linear(in_features=int(features/4), out_features=1)
 
         self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool2d(kernel_size=5, stride=2, padding=2)
