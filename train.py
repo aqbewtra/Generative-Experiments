@@ -11,6 +11,7 @@ from simple_discriminator import SimpleDiscriminator
 from simple_generator import SimpleGenerator
 from losses import gan_loss
 from save_grid import save_grid
+from wasserstein_loss import wass_d_loss, wass_g_loss
 
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -67,9 +68,13 @@ for epoch in range(epochs):
         d_real = d(real_batch.type(torch.float32))
         d_fake = d(fake_batch.detach()) # Detach so gradients aren't tracked through generator
 
+        # Traditional GAN Loss
         real_loss = adversarial_loss(d_real, torch.ones_like(d_real, device=d_real.device))
         fake_loss = adversarial_loss(d_fake, torch.zeros_like(d_fake, device=d_fake.device))
         d_loss = (real_loss + fake_loss) / 2
+
+        # Wasserstein Loss, Earth Mover Distance
+        # d_loss = wass_d_loss(d_real, d_fake)
 
         d_loss.backward()
         d_optim.step()
@@ -87,7 +92,12 @@ for epoch in range(epochs):
         fake_batch = g(z)
 
         d_fake = d(fake_batch)
+
+        # Traditional GAN Loss
         g_loss = adversarial_loss(d_fake, torch.ones_like(d_fake, device=d_fake.device))
+
+        # Wasserstein Loss, or Earth Mover Distance
+        # g_loss = wass_g_loss(d_fake)
 
         g_loss.backward()
         g_optim.step()
@@ -98,7 +108,7 @@ for epoch in range(epochs):
         d_optim.zero_grad() 
 
         if batch_id % 100 == 0:
-            save_grid(fake_batch, os.path.join(save_images_root, 'batch{}'.format(batch_id)))
+            save_grid(fake_batch, os.path.join(save_images_root, 'epoch{}batch{}'.format(epoch, batch_id)))
             
         print("EPOCH: {}/{} ".format(epoch+1, epochs), "Batch: {} / {}".format(batch_id, len(loader)))
         print("g_loss: ", g_loss.item())

@@ -16,6 +16,7 @@ class SimpleDiscriminator(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool2d(kernel_size=5, stride=2, padding=2)
+        self.sigmoid = nn.Sigmoid()
     
     def forward(self, x):
         x = x.reshape(x.shape[0], -1)
@@ -24,7 +25,9 @@ class SimpleDiscriminator(nn.Module):
         x = self.lin2(x)
         x = self.relu(x)
         x = self.lin3(x)
-        return x.squeeze_()
+        x = x.squeeze_()
+        # return self.sigmoid(x)
+        return x
 
 if __name__ == "__main__":
     import torch
