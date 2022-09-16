@@ -32,13 +32,24 @@ class SimpleGenerator(nn.Module):
         return z
 
 if __name__ == "__main__":
-    img_shape = (28, 28)
-    z_shape = (100)
-    batch_size = 16
-
-    gen = SimpleGenerator(input_dim=100, out_features=28*28, img_shape=img_shape, batch_size=batch_size)
     import torch
+    import time
 
-    z = torch.rand((batch_size, z_shape))
-    img = gen(z)
-    print(img.shape)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    batch_size = 1000
+    img_shape = (1, 28, 28)
+    z_dim = 100
+    g = SimpleGenerator(input_dim=100, out_features=28*28, img_shape=img_shape, batch_size=batch_size).to(device)
+
+    times = []
+    for i in range(100):
+        start = time.time()
+        z = torch.rand((batch_size, z_dim), device=g.lin1.weight.device)
+        fake_batch = g(z)
+        t = time.time() - start
+        print(time.time() - start, fake_batch.shape)
+        times.append(t)
+    print("Average Time: ", sum(times)/len(times))
+
+
+        

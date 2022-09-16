@@ -27,11 +27,25 @@ class SimpleDiscriminator(nn.Module):
         return x.squeeze_()
 
 if __name__ == "__main__":
+    import torch
     from torch import rand
-    x = rand((8, 28, 28))
+    import time
 
-    disc = SimpleDiscriminator()
-    out = disc(x)
-    print(out.shape)
+    batch_size = 128
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    disc = SimpleDiscriminator(in_features=28*28).to(device)
+
+    times = []
+    for i in range(1000):
+        x = rand((batch_size, 28, 28), device=device)
+        start = time.time()
+        out = disc(x)
+        t = time.time() - start
+        print(t, out.shape)
+        times.append(t)
+    
+    print("Average Time: ", sum(times)/len(times))
+
 
         
