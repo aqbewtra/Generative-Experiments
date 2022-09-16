@@ -1,3 +1,5 @@
+import os
+import time
 from numpy import dtype
 import torch
 from torch.utils.data import DataLoader, ConcatDataset
@@ -8,9 +10,12 @@ import torchvision.transforms as T
 from simple_discriminator import SimpleDiscriminator
 from simple_generator import SimpleGenerator
 from losses import gan_loss
+from save_grid import save_grid
 
 from PIL import Image
 import matplotlib.pyplot as plt
+
+save_images_root = 'samples'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -51,8 +56,9 @@ for epoch in range(epochs):
         d_optim.zero_grad()
         g_optim.zero_grad()
 
-        # Disc Update
-         
+        ##### Discriminator Update #####
+        d_start = time.time()
+
         real_batch = real_batch.to(device)
         
         z = torch.rand((batch_size, z_dim), device=g.lin1.weight.device)
@@ -67,35 +73,41 @@ for epoch in range(epochs):
 
         d_loss.backward()
         d_optim.step()
+        
+        d_end = time.time()
 
         g_optim.zero_grad() # Don't want to accumulate gradients for the generator update
         d_optim.zero_grad()
 
-        # Generator Update, create new fake_batch
+        ##### Generator Update #####
+        g_start = time.time()
+
+        # Create new fake_batch
         z = torch.rand((batch_size, z_dim), device=g.lin1.weight.device)
         fake_batch = g(z)
 
         d_fake = d(fake_batch)
-        g_loss = adversarial_loss(d_fake, torch.ones_like(d_fake))
+        g_loss = adversarial_loss(d_fake, torch.ones_like(d_fake, device=d_fake.device))
 
         g_loss.backward()
         g_optim.step()
 
+        g_end = time.time()
+
         g_optim.zero_grad()
         d_optim.zero_grad() 
 
-        if True: # batch_id % 100 == 0:
-            print("EPOCH: {}/{} ".format(epoch+1, epochs), "Batch: {} / {}".format(batch_id, len(loader)))
-            print("g_loss: ", g_loss.item())
-            print("d_loss: ", d_loss.item())
+        if batch_id % 100 == 0:
+            save_grid(fake_batch, os.path.join(save_images_root, 'batch{}'.format(batch_id)))
+            
+        print("EPOCH: {}/{} ".format(epoch+1, epochs), "Batch: {} / {}".format(batch_id, len(loader)))
+        print("g_loss: ", g_loss.item())
+        print("d_loss: ", d_loss.item())
+        print("g_time: ", g_end - g_start)
+        print("d_time: ", d_end - d_start)
 
         running_g_loss += g_loss.item()
         running_d_loss += d_loss.item()
 
     print("Avg. g_loss: ", running_g_loss / len(loader))
     print("Avg. d_loss: ", running_d_loss / len(loader))
-    imgs = [fake_batch[i].squeeze_() for i in range(batch_size)]
-    plt.imshow(torch.stack([imgs[0] for i in range(3)], dim=2).detach())
-    for i, img in enumerate(imgs):
-        T.ToPILImage()(img).save('samples/{}.png'.format(i))
-    plt.show()
