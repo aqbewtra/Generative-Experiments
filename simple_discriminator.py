@@ -1,33 +1,39 @@
 import torch.nn as nn
 from torch import flatten
+import torch.nn.functional as F
 
 class SimpleDiscriminator(nn.Module):
-    def __init__(self, in_features=28*28):
+    # For a batch of (128,28,28) --> (128,) classifications, avg. batch time = 0.01396514892578125 s
+    def __init__(self, in_features=28*28, dropout=.2, return_logits=True):
         super(SimpleDiscriminator, self).__init__()
-        # self.conv1 = nn.Conv2d(in_channels=img_shape[0], out_channels=5, kernel_size=5, padding=2)
-        # self.conv2 = nn.Conv2d(in_channels=5, out_channels=10, kernel_size=5, padding=2)
-        # self.conv3 = nn.Conv2d(in_channels=10, out_channels=20, kernel_size=5, padding=2)
 
+        self.dropout = dropout
         self.in_features = in_features
+        self.return_logits=return_logits
 
-        self.lin1 = nn.Linear(in_features=self.in_features, out_features=self.in_features*10)
-        self.lin2 = nn.Linear(in_features=self.in_features*10, out_features=self.in_features*10*2)
-        self.lin3 = nn.Linear(in_features=self.in_features*10*2, out_features=1)
-
+        self.lin1 = nn.Linear(in_features=28*28, out_features=1024)
+        self.lin2 = nn.Linear(in_features=self.lin1.out_features, out_features=self.lin1.out_features//2)
+        self.lin3 = nn.Linear(in_features=self.lin2.out_features, out_features=self.lin2.out_features//2)
+        self.lin4 = nn.Linear(in_features=self.lin3.out_features, out_features=1)
         self.relu = nn.ReLU(inplace=True)
-        self.max_pool = nn.MaxPool2d(kernel_size=5, stride=2, padding=2)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, x):
         x = x.reshape(x.shape[0], -1)
         x = self.lin1(x)
         x = self.relu(x)
+        x = F.dropout(x, self.dropout)
         x = self.lin2(x)
         x = self.relu(x)
+        x = F.dropout(x, self.dropout)
         x = self.lin3(x)
+        x = self.relu(x)
+        x = F.dropout(x, self.dropout)
+        x = self.lin4(x)
         x = x.squeeze_()
-        # return self.sigmoid(x)
-        return x
+        if self.return_logits: return x
+        else: return self.sigmoid(x)
+
 
 if __name__ == "__main__":
     import torch
@@ -40,7 +46,7 @@ if __name__ == "__main__":
     disc = SimpleDiscriminator(in_features=28*28).to(device)
 
     times = []
-    for i in range(1000):
+    for i in range(25):
         x = rand((batch_size, 28, 28), device=device)
         start = time.time()
         out = disc(x)
