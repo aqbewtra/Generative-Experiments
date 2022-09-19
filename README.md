@@ -6,7 +6,7 @@
 * Discriminator is crushing the discriminator in the minmax.
 * Wasserstein Loss vs. GAN loss? Do I need to add in gradient penalty to balance out
 * ~~Measure time discriminator updates for isolated random batch. The discriminator runs really slow. Why? Gradients? Optimizer update?~~
-    * Discriminator had way too many parameters, approx 10x too many. Reducing feature count dropped the average time of a 128 image batch from `.312 s` --> `.006 s`.
+    * Discriminator had way too many parameters, approx 10x too many. Reducing feature count dropped the average time of a 128-image-batch from `.312 s` --> `.006 s`.
 * Convolutional Generator and Discriminator
 * WGAN - https://arxiv.org/abs/1701.07875
     * Gradient penalty
