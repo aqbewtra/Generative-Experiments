@@ -7,7 +7,7 @@ import torch.nn as nn
 from torchvision.datasets import MNIST
 import torchvision.transforms as T
 
-from simple_discriminator import SimpleDiscriminator
+from simple_discriminator import SimpleDiscriminator as SimpleDiscriminator
 from simple_generator import SimpleGenerator
 from losses import gan_loss
 from save_grid import save_grid
@@ -26,7 +26,7 @@ z_dim = 100
 
 # Hyperparameters
 epochs = 30
-_batch_size = 100
+batch_size = 100
 lr = 4e-3
 b1 = .5
 b2 = .999
@@ -68,12 +68,10 @@ for epoch in range(epochs):
         d_real = d(real_batch.type(torch.float32))
         d_fake = d(fake_batch.detach()) # Detach so gradients aren't tracked through generator
 
-        # Traditional GAN Loss
-        real_loss = adversarial_loss(d_real, torch.ones_like(d_real, device=d_real.device))
-        fake_loss = adversarial_loss(d_fake, torch.zeros_like(d_fake, device=d_fake.device))
-        d_loss = (real_loss + fake_loss) / 2
+        # Wasserstein Loss, Earth Mover Distance
+        d_loss = wass_d_loss(d_real, d_fake)
 
-        
+
         d_loss.backward()
         d_optim.step()
         
@@ -91,8 +89,8 @@ for epoch in range(epochs):
 
         d_fake = d(fake_batch)
 
-        # Traditional GAN Loss
-        g_loss = adversarial_loss(d_fake, torch.ones_like(d_fake, device=d_fake.device))
+        # Wasserstein Loss, or Earth Mover Distance
+        g_loss = wass_g_loss(d_fake)
 
         g_loss.backward()
         g_optim.step()
