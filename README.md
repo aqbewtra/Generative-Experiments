@@ -9,5 +9,7 @@
     * Discriminator had way too many parameters, approx 10x too many. Reducing feature count dropped the average time of a 128 image batch from `.312 s` --> `.006 s`.
 * Convolutional Generator and Discriminator
 * WGAN - https://arxiv.org/abs/1701.07875
+    * Gradient penalty
+    * Update labels for WGAN training --> (-1,1) instead of (0,1)?
 * Traversing z-space images clip
 * Conditional GAN for MNIST images with single model; single G and single D for multiple classes
