@@ -26,7 +26,7 @@ z_dim = 100
 
 # Hyperparameters
 epochs = 30
-_batch_size = 100
+batch_size = 100
 lr = 4e-3
 b1 = .5
 b2 = .999
