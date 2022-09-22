@@ -1,7 +1,11 @@
 # Generative-Experiments
 
 ## TO DO
-* Test for loss formulation errors?
+* Mode Collapse
+    * ~~Test for loss formulation errors?~~
+        *  Loss forulation is correct
+    * Generator and discriminator information flow?
+* Why does everyone use LeakyReLU instead of the normal one?
 * Testing with original GAN loss formulation; using BCE; and WGAN loss.
 * Discriminator is crushing the generator in the minmax.
 * Wasserstein Loss vs. GAN loss? Do I need to add in gradient penalty to balance out
