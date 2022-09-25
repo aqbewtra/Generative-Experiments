@@ -1,0 +1,45 @@
+python wgan-gp.py
+--seed=42
+--outdir=output
+--batch=128
+--workers=0
+--pin_memory
+--latent_dim=16
+--features=128
+--g_lr=1e-3
+--c_lr=1e-4
+--beta1=0.5
+--beta2=0.999
+--gen_interval=5
+--sample_interval=100
+--gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output003 --batch=64 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output004 --batch=128 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=5 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output005 --batch=64 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=3 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output006 --batch=64 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=7 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output007 --batch=64 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=4e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output008 --batch=64 --workers=8 --latent_dim=16 --features=256 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output009 --batch=64 --workers=8 --latent_dim=16 --features=64 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output010 --batch=64 --workers=8 --latent_dim=16 --features=64 --g_lr=1e-4 --c_lr=1e-5 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output011 --batch=64 --workers=8 --latent_dim=16 --features=64 --g_lr=1e-4 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output012 --batch=64 --workers=8 --latent_dim=16 --features=64 --g_lr=4e-4 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output013 --batch=64 --workers=8 --latent_dim=2 --features=64 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output014 --batch=64 --workers=8 --latent_dim=2 --features=64 --g_lr=1e-4 --c_lr=4e-5 --gen_interval=5 --sample_interval=10 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output015 --batch=64 --workers=8 --latent_dim=2 --features=64 --g_lr=4e-4 --c_lr=1e-4 --gen_interval=5 --sample_interval=15 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output016 --batch=64 --workers=8 --latent_dim=2 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=5 --gp_weight=10
+
+python wgan-gp.py --seed=42 --outdir=output017 --batch=64 --workers=8 --latent_dim=16 --features=128 --g_lr=1e-3 --c_lr=1e-4 --gen_interval=5 --sample_interval=5 --gp_weight=10
