@@ -27,13 +27,13 @@ g_out_features = 28*28
 
 # Hyperparameters
 epochs = 30
-batch_size = 512 if torch.cuda.is_available() else 128
-g_lr = 4e-2
-d_lr = 4e-6
+batch_size = 64
+g_lr = 2e-3
+d_lr = 2e-3
 g_b1 = .5
 g_b2 = .999
-d_b1 = .4
-d_b2 = .9
+d_b1 = .5
+d_b2 = .999
 
 # Dataset
 train_dataset = MNIST('../data/MNIST', train=True, download=True, transform=T.PILToTensor())
@@ -108,12 +108,8 @@ for epoch in range(epochs):
 
         if batch_id % 100 == 0:
             save_grid(fake_batch.cpu(), os.path.join(save_images_root, 'epoch{}batch{}'.format(epoch, batch_id)))
-            print("EPOCH: {}/{} ".format(epoch+1, epochs), "Batch: {} / {}".format(batch_id, len(loader)))
-            print("g_loss: ", g_loss.item())
-            print("d_loss: ", d_loss.item())
-            print("g_time: ", g_end - g_start)
-            print("d_time: ", d_end - d_start)
-
+            print("[EPOCH: {}/{}] [Batch: {} / {}] [g_loss: {}] [d_loss: {}] [g_time: {}] [d_time: {}]".format(epoch+1, epochs, batch_id, len(loader), g_loss.item(), d_loss.item(), g_end - g_start, d_end - d_start))
+        
         running_g_loss += g_loss.item()
         running_d_loss += d_loss.item()
 
