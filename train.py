@@ -36,8 +36,8 @@ d_b1 = .5
 d_b2 = .999
 
 # Dataset
-train_dataset = MNIST('../data/MNIST', train=True, download=True, transform=T.PILToTensor())
-test_dataset = MNIST('../data/MNIST', train=False, download=True, transform=T.PILToTensor())
+train_dataset = MNIST('../data/MNIST', train=True, download=True, transform=T.ToTensor())
+test_dataset = MNIST('../data/MNIST', train=False, download=True, transform=T.ToTensor())
 loader = DataLoader(ConcatDataset([train_dataset, test_dataset]), batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=False)
 
 # Generator
