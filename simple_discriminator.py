@@ -15,7 +15,7 @@ class SimpleDiscriminator(nn.Module):
         self.lin2 = nn.Linear(in_features=self.lin1.out_features, out_features=self.lin1.out_features//2)
         self.lin3 = nn.Linear(in_features=self.lin2.out_features, out_features=self.lin2.out_features//2)
         self.lin4 = nn.Linear(in_features=self.lin3.out_features, out_features=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.LeakyReLU(0.2, inplace=True)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, x):

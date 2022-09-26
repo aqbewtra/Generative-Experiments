@@ -18,7 +18,7 @@ class SimpleGenerator(nn.Module):
         self.ln2 = nn.LayerNorm(self.lin2.out_features)
         self.ln3 = nn.LayerNorm(self.lin3.out_features)
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.LeakyReLU(0.2, inplace=True)
         self.sigmoid = nn.Sigmoid()
         self.tanh = nn.Tanh()
 
